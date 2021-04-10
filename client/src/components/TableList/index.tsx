@@ -1,14 +1,20 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, message, Drawer, Modal } from 'antd';
+import { FormOutlined, FileTextOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useState, useRef } from 'react';
 import { FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
-import { ModalForm } from '@ant-design/pro-form';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 
 import type { TableListProps } from './typings';
+
+const icons = {
+  detail: <FileTextOutlined />,
+  edit: <FormOutlined />,
+  remove: <DeleteOutlined />,
+}
 
 export default function<T = any>(props: TableListProps<T>) {
   const { title, options, service } = props;
@@ -17,23 +23,17 @@ export default function<T = any>(props: TableListProps<T>) {
     setCurrentRow(record);
     if (key === 'detail') {
       setDetailVisible(true);
-    } else if (key === 'remove') {
-      Modal.confirm({
-        title: '删除',
-        content: '确认删除',
-        onOk: () => {
-          handleRemove([currentRow]);
-        }
-      })
     } else if (key === 'edit') {
-
+      setEditModalVisible(true);
+    } else if (key === 'remove') {
+      handleRemove([currentRow]);
     }
   }
 
   const prepareOption = (key: any, record: any) => {
     return (
       <a key={key} onClick={() => handleOption(key, record)}>
-        {key}
+        {icons[key]}
       </a>
     );
   }
@@ -49,24 +49,41 @@ export default function<T = any>(props: TableListProps<T>) {
     }
   };
 
-  const handleRemove = async (selectedRows: any[]) => {
-    if (!selectedRows) return true;
+  const handleUpdate = async (fields: any) => {
     try {
-      await service.remove(selectedRows.map((row) => row._id));
-      setSelectedRows([]);
-      actionRef.current?.reloadAndRest?.();
-      message.success('删除成功');
-      return true;
+      await service.update(currentRow._id ,fields);
+      message.success('更新成功');
+      setEditModalVisible(false);
+      actionRef.current?.reload?.();
     } catch (error) {
-      message.error('删除失败请重试！');
-      return false;
+      message.error('更新失败请重试！');
     }
+  };
+
+  const handleRemove = (selectedRows: any[]) => {
+    Modal.confirm({
+      title: '删除',
+      content: '确认删除',
+      onOk: async () => {
+        try {
+          await service.remove(selectedRows.map((row) => row._id));
+          setSelectedRows([]);
+          actionRef.current?.reloadAndRest?.();
+          message.success('删除成功');
+          return true;
+        } catch (error) {
+          message.error('删除失败请重试！');
+          return false;
+        }
+      }
+    });
   };
 
   const columns: ProColumns<T>[] = [
     ...props.columns,
     {
       title: "操作",
+      width: 120,
       dataIndex: 'option',
       valueType: 'option',
       render: (_: any, record: any) => options.map((key: any) => prepareOption(key, record)),
@@ -75,6 +92,7 @@ export default function<T = any>(props: TableListProps<T>) {
 
   /** 新建窗口的弹窗 */
   const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
+  const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
   const [detailVisible, setDetailVisible] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
@@ -140,6 +158,24 @@ export default function<T = any>(props: TableListProps<T>) {
           columns={columns}
           form={{
             preserve: false
+          }}
+        />
+      </Modal>
+
+      <Modal
+        title={'编辑'}
+        visible={editModalVisible}
+        onCancel={() => setEditModalVisible(false)}
+        footer={null}
+        destroyOnClose
+      >
+        <ProTable<T>
+          type="form"
+          onSubmit={handleUpdate}
+          columns={columns}
+          form={{
+            preserve: false,
+            initialValues: currentRow,
           }}
         />
       </Modal>

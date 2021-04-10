@@ -4,30 +4,32 @@ export async function query(
   params: Global.PageParams,
   options?: { [key: string]: any },
 ) {
-  return request<Category.Item>('/api/rule', {
+  return request<Category.Item>('/api/category', {
     method: 'GET',
     params,
     ...(options || {}),
   });
 }
 
-export async function create(options?: { [key: string]: any }) {
-  return request<Category.Item>('/api/rule', {
+export async function create(data: Category.Item) {
+  return request<Category.Item>('/api/category', {
     method: 'POST',
-    ...(options || {}),
+    data
   });
 }
 
-export async function update(options?: { [key: string]: any }) {
-  return request<Category.Item>('/api/rule', {
+export async function update(id: string, data: Category.Item) {
+  return request<Category.Item>(`/api/category/${id}`, {
     method: 'PUT',
-    ...(options || {}),
+    data,
   });
 }
 
-export async function remove(options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/rule', {
+export async function remove(ids: string[]) {
+  return request<Record<string, any>>('/api/category', {
     method: 'DELETE',
-    ...(options || {}),
+    data: {
+      ids
+    },
   });
 }

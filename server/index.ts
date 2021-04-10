@@ -1,4 +1,4 @@
-import { Application } from "https://deno.land/x/oak/mod.ts";
+import { Application, helpers } from "https://deno.land/x/oak/mod.ts";
 import router from './router.ts';
 
 const app = new Application();
@@ -28,6 +28,16 @@ app.use(async (ctx, next) => {
   await next();
   ctx.response.headers.set('Access-Control-Allow-Origin', 'http://localhost:8765');
 });
+
+// 参数解析
+app.use(async (ctx, next) => {
+  ctx.state.params = helpers.getQuery(ctx) || {};
+  if (ctx.request.hasBody) {
+    const body = await ctx.request.body({ type: 'json' }).value;
+    Object.assign(ctx.state.params, body);
+  }
+  await next();
+})
 
 app.use(router.routes());
 app.use(router.allowedMethods());
