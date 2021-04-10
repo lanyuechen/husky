@@ -37,10 +37,10 @@
     ],
   },
   {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './TableList',
+    name: '分类管理',
+    icon: 'ClusterOutlined',
+    path: '/category',
+    component: './Category',
   },
   {
     path: '/',

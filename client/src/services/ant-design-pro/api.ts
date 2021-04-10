@@ -39,7 +39,7 @@ export async function getNotices(options?: { [key: string]: any }) {
 }
 
 /** 获取规则列表 GET /api/rule */
-export async function rule(
+export async function rule<T>(
   params: {
     // query
     /** 当前的页码 */
@@ -49,7 +49,7 @@ export async function rule(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>('/api/rule', {
+  return request<T>('/api/rule', {
     method: 'GET',
     params: {
       ...params,
