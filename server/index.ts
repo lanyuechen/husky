@@ -23,6 +23,12 @@ app.use(async (ctx, next) => {
   ctx.response.headers.set("X-Response-Time", `${ms}ms`);
 });
 
+// cors
+app.use(async (ctx, next) => {
+  await next();
+  ctx.response.headers.set('Access-Control-Allow-Origin', 'http://localhost:8765');
+});
+
 app.use(router.routes());
 app.use(router.allowedMethods());
 
