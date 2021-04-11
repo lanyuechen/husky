@@ -1,5 +1,5 @@
 import { RouterContext } from "https://deno.land/x/oak/mod.ts";
-import { Category, objectId } from '../db/index.ts'
+import { Category, objectId } from '../db/index.ts';
 
 export const list = async (ctx: RouterContext) => {
   const data = await Category.find().toArray();
