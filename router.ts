@@ -1,6 +1,5 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 
-import * as category from './service/category.ts';
 import * as film from './service/film.ts';
 import * as user from './service/user.ts';
 
@@ -13,14 +12,7 @@ router
   .get('/profile', user.profile)  // 个人信息
   .post('/login', user.login)     // 登录
 
-// 分类管理
-router
-  .get('/category', category.list)
-  .post('/category', category.create)
-  .put('/category/:id', category.update)
-  .delete('/category', category.remove)
-
-// 资源管理
+// 电影资源管理
 router
   .get('/film', film.list)
   .post('/film', film.create)
