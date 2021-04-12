@@ -1,10 +1,10 @@
 import { objectId } from './db.ts';
 
-import Demo from './demo.ts';
 import Category from './category.ts';
+import User from './user.ts';
 
 export {
   objectId,
-  Demo,
   Category,
+  User,
 }

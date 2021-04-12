@@ -8,12 +8,13 @@ const router = new Router({
 });
 
 router
-  .get('/profile', user.profile);  
+  .get('/profile', user.profile)
+  .post('/login', user.login)
 
 router
   .get('/category', category.list)
   .post('/category', category.create)
   .put('/category/:id', category.update)
-  .delete('/category', category.remove);
+  .delete('/category', category.remove)
 
 export default router;
