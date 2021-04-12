@@ -1,6 +1,6 @@
 import db, { ID } from './db.ts';
 
-const COLLECTION = 'resource';
+const COLLECTION = 'film';
 
 interface SourceSchema {
   url: string;          // 资源链接（在线观看）
