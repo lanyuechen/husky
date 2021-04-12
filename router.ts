@@ -23,7 +23,7 @@ router
 
 // portal接口
 router
-  .get('/search', portalFilm.search)  // 综合搜索
-  .get('/search/director')
+  .get('/portal/film/search', portalFilm.search)    // 综合搜索
+  .get('/portal/film/:id', portalFilm.detail)       // 电影详情
 
 export default router;
