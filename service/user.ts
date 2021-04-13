@@ -1,43 +1,53 @@
 import { RouterContext } from "https://deno.land/x/oak/mod.ts";
-import { createHash } from "https://deno.land/std@0.92.0/hash/mod.ts";
-import { User } from '../db/index.ts';
+import { User as C, objectId } from '../db/index.ts';
 
-const SALT = '!3#WX_+$a&xT@';
-
-const hashPwd = (password: string) => {
-  const hash = createHash("sha256");
-  hash.update(SALT + password);
-  return hash.toString();
-}
-
-export const profile = async (ctx: RouterContext) => {
-  const token = ctx.cookies.get('token');
-  const data = await User.findOne({token});
-
-  // ctx.response.body = data;
-
+export const list = async (ctx: RouterContext) => {
+  const data = await C.find(
+    {},
+    { 
+      projection: { password: false }
+    }
+  ).toArray();
+  const total = await C.count();
   ctx.response.body = {
-    _id: '0',
-    name: 'admin',
-    access: 'admin'
+    success: true,
+    data,
+    total,
   };
 }
 
-export const login = async (ctx: RouterContext) => {
-  const { username, password } = ctx.state.params;
-  const hashPassword = hashPwd(password);
-  const data = await User.findOne(
-    { username, password: hashPassword },
-    { 
-      projection: { password: false }
-    },
-  );
-
-  // ctx.response.body = data;
-
+export const create = async (ctx: RouterContext) => {
+  const data = ctx.state.params;
+  const insertId = await C.insertOne(data);
   ctx.response.body = {
-    _id: '0',
-    name: 'admin',
-    access: 'admin'
+    success: true,
+    data: insertId
+  };
+}
+
+export const update = async (ctx: RouterContext) => {
+  const { id } = ctx.params;
+  const data = ctx.state.params;
+  const { modifiedCount } = await C.updateOne(
+    { _id: objectId(id as string) },
+    { $set: data }
+  );
+  ctx.response.body = {
+    success: true,
+    data: modifiedCount
+  };
+}
+
+export const remove = async (ctx: RouterContext) => {
+  const { ids } = ctx.state.params;
+  const data = {
+    _id: {
+      $in: ids.map(objectId)
+    }
+  };
+  const count = await C.deleteMany(data);
+  ctx.response.body = {
+    success: true,
+    data: count,
   };
 }

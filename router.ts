@@ -5,16 +5,25 @@ import * as actor from './service/actor.ts';
 import * as director from './service/director.ts';
 import * as user from './service/user.ts';
 
+import * as api from './service/api.ts';
+
 import * as portalFilm from './service/portal/film.ts';
 
 const router = new Router({
   prefix: '/api'
 });
 
-// 用户相关接口
+// 其他接口
 router
-  .get('/profile', user.profile)  // 个人信息
-  .post('/login', user.login)     // 登录
+  .get('/profile', api.profile)  // 个人信息
+  .post('/login', api.login)     // 登录
+
+// 用户管理
+router
+  .get('/user', user.list)
+  .post('/user', user.create)
+  .put('/user/:id', user.update)
+  .delete('/user', user.remove)
 
 // 电影资源管理
 router
