@@ -1,5 +1,5 @@
 import { RouterContext } from "https://deno.land/x/oak/mod.ts";
-import { Film as C, objectId } from '../db/index.ts';
+import { Director as C, objectId } from '../db/index.ts';
 
 export const list = async (ctx: RouterContext) => {
   const data = await C.find().toArray();
@@ -16,7 +16,7 @@ export const create = async (ctx: RouterContext) => {
   const insertId = await C.insertOne(data);
   ctx.response.body = {
     success: true,
-    data: insertId,
+    data: insertId
   };
 }
 
@@ -43,7 +43,7 @@ export const remove = async (ctx: RouterContext) => {
   const count = await C.deleteMany(data);
   ctx.response.body = {
     success: true,
-    data: count
+    data: count,
   };
 }
 
