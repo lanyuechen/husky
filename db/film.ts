@@ -2,7 +2,7 @@ import db, { ID } from './db.ts';
 
 const COLLECTION = 'film';
 
-interface Schema {
+export interface Schema {
   _id: ID;
   name: string;                 // 资源名称
   desc: string;                 // 资源简介

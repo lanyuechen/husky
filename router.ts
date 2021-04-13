@@ -1,6 +1,7 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 
 import * as film from './service/film.ts';
+import * as actor from './service/actor.ts';
 import * as user from './service/user.ts';
 
 import * as portalFilm from './service/portal/film.ts';
@@ -20,6 +21,13 @@ router
   .post('/film', film.create)
   .put('/film/:id', film.update)
   .delete('/film', film.remove)
+
+// 演员资源管理
+router
+  .get('/actor', actor.list)
+  .post('/actor', actor.create)
+  .put('/actor/:id', actor.update)
+  .delete('/actor', actor.remove)
 
 // portal接口
 router
