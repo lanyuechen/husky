@@ -1,8 +1,19 @@
+// deno-lint-ignore-file
+import { DOMParser, HTMLDocument } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+
+type Selector = {
+  selector: string;
+  key?: string;
+  children?: Selector[]
+}
+
 export default class Spider {
   entry: string;
+  selector: Selector;
 
-  constructor(entry: string) {
+  constructor(entry: string, selector: Selector) {
     this.entry = entry;
+    this.selector = selector;
   }
 
   run() {
@@ -10,13 +21,39 @@ export default class Spider {
   }
 
   async scraper(url: string) {
-    const res = await this.fetchDom(url);
-    console.log('res', res);
+    // 获取页面xml字符串
+    const xml = await this.fetchDom(url);
+    // 字符串xml转换为dom对象
+    const dom = this.xml2Dom(xml);
+
+    const data = this.getData(dom, this.selector);
+    
+    console.log('res', data);
   }
 
   async fetchDom(url: string) {
     const res = await fetch(url);
     return res.text();
+  }
+
+  xml2Dom(str: string) {
+    return new DOMParser().parseFromString(str, "text/html");
+  }
+
+  getData(dom: HTMLDocument | null, selector: Selector) {
+    if (!dom) {
+      return [];
+    }
+    if (!selector.children?.length) {
+      return dom.querySelector(selector.selector)?.innerHTML;
+    }
+    return Array.from(dom.querySelectorAll(selector.selector)).map(node => {
+      const data: any = {};
+      selector.children?.forEach((d: Selector) => {
+        data[d.key as string] = this.getData(node as HTMLDocument, d)
+      });
+      return data;
+    });
   }
 
   loopUrl(url: string, fn: (url: string) => void) {
@@ -33,6 +70,24 @@ export default class Spider {
 }
 
 // const spider = new Spider('https://www.baidu.com/page/[1-3]/section/[2-5]');
-const spider = new Spider('https://movie.douban.com/review/best/?start=[20-20:20]');
+const spider = new Spider('https://movie.douban.com/review/best/?start=[20-20:20]', {
+  selector: '[data-cid]',
+  children: [
+    {
+      selector: '.main-hd > .name',
+      key: 'user',
+    },
+    {
+      selector: '.main-bd',
+      key: 'info',
+      children: [
+        {
+          selector: 'h2 > a',
+          key: 'title',
+        },
+      ],
+    },
+  ]
+});
 
 spider.run();
