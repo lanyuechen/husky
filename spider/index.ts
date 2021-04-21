@@ -3,8 +3,9 @@ import { DOMParser, HTMLDocument } from "https://deno.land/x/deno_dom/deno-dom-w
 
 type Selector = {
   selector: string;
+  type?: string;
   key?: string;
-  children?: Selector[]
+  children?: Selector[];
 }
 
 export default class Spider {
@@ -42,11 +43,22 @@ export default class Spider {
 
   getData(dom: HTMLDocument | null, selector: Selector) {
     if (!dom) {
-      return [];
+      return null;
     }
+
     if (!selector.children?.length) {
-      return dom.querySelector(selector.selector)?.innerHTML;
+      const type = selector.type || 'text';
+      const node = dom.querySelector(selector.selector);
+      if (!node) {
+        return null;
+      }
+      if (type.includes('attr:')) {
+        const attr = type.substring(5).trim();
+        return node.getAttribute(attr);
+      }
+      return node.innerHTML;
     }
+
     return Array.from(dom.querySelectorAll(selector.selector)).map(node => {
       const data: any = {};
       selector.children?.forEach((d: Selector) => {
@@ -76,6 +88,12 @@ const spider = new Spider('https://movie.douban.com/review/best/?start=[20-20:20
     {
       selector: '.main-hd > .name',
       key: 'user',
+      type: 'text',
+    },
+    {
+      selector: '.subject-img img',
+      key: 'image',
+      type: 'attr:src',
     },
     {
       selector: '.main-bd',
